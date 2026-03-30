@@ -16,7 +16,7 @@ import { STEPS, TESTIMONIALS } from "@/lib/landing";
 //edit..
 const SOCIAL_LINKS = {
   instagram: "https://www.instagram.com/vrma_shikhar",     // TODO: replace with real page if different
-  github: "https://github.com/shikhu5804/Splitr",     // repo link is correct
+  github: "https://github.com/shikhu5804/Splitr/Splitr-main",     // repo link is correct
 };
 
 export default function LandingPage() {
@@ -192,7 +192,7 @@ export default function LandingPage() {
                 />
               </a>
               <a
-                href="https://github.com/shikhu5804"
+                href="https://github.com/shikhu5804/Splitr-main"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-transform transform hover:scale-110 focus:scale-110"

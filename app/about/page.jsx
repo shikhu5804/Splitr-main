@@ -228,7 +228,7 @@ export default function AboutPage() {
             </motion.div>
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
               <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                <Link href="https://github.com/shikhu5804" target="_blank">
+                <Link href="https://github.com/shikhu5804/Splitr-main" target="_blank">
                   <Github className="mr-2 h-4 w-4" />
                   View on GitHub
                 </Link>
@@ -276,7 +276,7 @@ export default function AboutPage() {
                 />
               </a>
               <a
-                href="https://github.com/shikhu5804"
+                href="https://github.com/shikhu5804/Splitr-main"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-blue-600"

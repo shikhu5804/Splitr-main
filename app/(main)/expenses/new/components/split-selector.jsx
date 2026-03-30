@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function SplitSelector({
   type,
@@ -17,6 +18,21 @@ export function SplitSelector({
   const [splits, setSplits] = useState([]);
   const [totalPercentage, setTotalPercentage] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [includedIds, setIncludedIds] = useState([]);
+
+  // Initialize included IDs when participants change
+  useEffect(() => {
+    setIncludedIds((prev) => {
+      const participantIds = participants.map((p) => p.id);
+      // Keep previously included IDs if they still exist
+      const newIncluded = prev.filter((id) => participantIds.includes(id));
+      // If none are included (e.g., initial load), select all
+      if (newIncluded.length === 0 && participantIds.length > 0) {
+        return participantIds;
+      }
+      return newIncluded;
+    });
+  }, [participants]);
 
   // Calculate splits when inputs change
   useEffect(() => {
@@ -27,17 +43,28 @@ export function SplitSelector({
     let newSplits = [];
 
     if (type === "equal") {
-      // Equal splits
-      const shareAmount = amount / participants.length;
-      newSplits = participants.map((participant) => ({
-        userId: participant.id,
-        name: participant.name,
-        email: participant.email,
-        imageUrl: participant.imageUrl,
-        amount: shareAmount,
-        percentage: 100 / participants.length,
-        paid: participant.id === paidByUserId,
-      }));
+      // Equal splits based on included users
+      const activeParticipants = participants.filter((p) =>
+        includedIds.includes(p.id)
+      );
+      const shareAmount =
+        activeParticipants.length > 0 ? amount / activeParticipants.length : 0;
+
+      newSplits = participants.map((participant) => {
+        const isIncluded = includedIds.includes(participant.id);
+        return {
+          userId: participant.id,
+          name: participant.name,
+          email: participant.email,
+          imageUrl: participant.imageUrl,
+          amount: isIncluded ? shareAmount : 0,
+          percentage:
+            isIncluded && activeParticipants.length > 0
+              ? 100 / activeParticipants.length
+              : 0,
+          paid: participant.id === paidByUserId,
+        };
+      });
     } else if (type === "percentage") {
       // Initialize percentage splits evenly
       const evenPercentage = 100 / participants.length;
@@ -83,7 +110,16 @@ export function SplitSelector({
     if (onSplitsChange) {
       onSplitsChange(newSplits);
     }
-  }, [type, amount, participants, paidByUserId, onSplitsChange]);
+  }, [type, amount, participants, paidByUserId, includedIds, onSplitsChange]);
+
+  const toggleIncluded = (userId) => {
+    if (type !== "equal") return;
+    setIncludedIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
 
   // Update the percentage splits - no automatic adjustment of other values
   const updatePercentageSplit = (userId, newPercentage) => {
@@ -163,26 +199,42 @@ export function SplitSelector({
 
   return (
     <div className="space-y-4 mt-4">
-      {splits.map((split) => (
-        <div
-          key={split.userId}
-          className="flex items-center justify-between gap-4"
-        >
-          <div className="flex items-center gap-2 min-w-[120px]">
-            <Avatar className="h-7 w-7">
-              <AvatarImage src={split.imageUrl} />
-              <AvatarFallback>{split.name?.charAt(0) || "?"}</AvatarFallback>
-            </Avatar>
-            <span className="text-sm">
-              {split.userId === user?.id ? "You" : split.name}
-            </span>
-          </div>
+      {splits.map((split) => {
+        const isIncluded =
+          type === "equal" ? includedIds.includes(split.userId) : true;
 
-          {type === "equal" && (
-            <div className="text-right text-sm">
-              ₹{split.amount.toFixed(2)} ({split.percentage.toFixed(1)}%)
+        return (
+          <div
+            key={split.userId}
+            className={`flex items-center justify-between gap-4 ${!isIncluded ? "opacity-50 grayscale" : ""}`}
+          >
+            <div className="flex items-center gap-3 min-w-[120px]">
+              {type === "equal" && (
+                <Checkbox
+                  checked={isIncluded}
+                  onCheckedChange={() => toggleIncluded(split.userId)}
+                />
+              )}
+              <div className="flex items-center gap-2">
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src={split.imageUrl} />
+                  <AvatarFallback>{split.name?.charAt(0) || "?"}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm">
+                  {split.userId === user?.id ? "You" : split.name}
+                </span>
+              </div>
             </div>
-          )}
+
+            {type === "equal" && (
+              <div className="text-right text-sm">
+                {isIncluded ? (
+                  <>₹{split.amount.toFixed(2)} ({split.percentage.toFixed(1)}%)</>
+                ) : (
+                  <span className="text-muted-foreground">-</span>
+                )}
+              </div>
+            )}
 
           {type === "percentage" && (
             <div className="flex items-center gap-4 flex-1">
@@ -239,7 +291,8 @@ export function SplitSelector({
             </div>
           )}
         </div>
-      ))}
+      );
+    })}
 
       {/* Total row */}
       <div className="flex justify-between border-t pt-3 mt-3">
