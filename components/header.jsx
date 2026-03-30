@@ -221,10 +221,10 @@ export default function Header() {
   return (
     <>
       <motion.header
-        className={`sticky top-0 w-full z-50 transition-all duration-300 dark:bg-blue-950 ${
+        className={`sticky top-0 w-full z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-lg"
-            : "bg-white/80  backdrop-blur-sm"
+            ? "bg-white/95 dark:bg-background/85 backdrop-blur-md shadow-lg dark:border-b dark:border-white/10"
+            : "bg-white/80 dark:bg-background/60 backdrop-blur-sm"
         }`}
         style={{
           ["--brand"]: colorPalette.brand,
@@ -350,8 +350,8 @@ export default function Header() {
                   animate="visible"
                   exit="exit"
                   variants={containerVariants}
-                  className="fixed top-16 left-2 right-2 bg-white bg-gradient-to-br 
-              dark:from-blue-950 dark:via-background dark:to-blue-900
+                  className="fixed top-16 left-2 right-2 bg-white 
+              dark:bg-zinc-950 dark:border dark:border-white/10
               rounded-b-lg p-4 lg:hidden z-50  
               shadow-gray-400 flex flex-col 
               gap-6 px-4 py-4 shadow-lg"

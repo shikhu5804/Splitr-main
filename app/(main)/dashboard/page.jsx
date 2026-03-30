@@ -89,11 +89,11 @@ export default function Dashboard() {
               <CardContent>
                 <div className="text-2xl font-bold ">
                   {balances?.totalBalance > 0 ? (
-                    <span className="text-zinc-800">
+                    <span className="text-zinc-800 dark:text-zinc-100">
                       +₹{balances?.totalBalance.toFixed(2)}
                     </span>
                   ) : balances?.totalBalance < 0 ? (
-                    <span className="text-zinc-800">
+                    <span className="text-zinc-800 dark:text-zinc-100">
                       -₹{Math.abs(balances?.totalBalance).toFixed(2)}
                     </span>
                   ) : (
