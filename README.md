@@ -31,7 +31,7 @@ Splitr is a smart, AI-powered expense-splitting app built with Next.js, Tailwind
 
 # **🚀Demo**
 
-* **[Live Demo](https://splitr-q9gg.vercel.app/):** Check out the live version of Splitr to see its features in action.
+* **[Live Demo](https://splitr-main.vercel.app/):** Check out the live version of Splitr to see its features in action.
 
 # **Getting Started**
 
@@ -93,7 +93,7 @@ We love contributions from the community! Whether it's a bug report, a new featu
 
 ## **📄 License**
 
-This project is licensed under the MIT License - see the [`License`](https://github.com/dhruvbajaj13/Splitr/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [`License`](https://github.com/shikhu5804/Splitr-main/) file for details.
 
 > A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.
 
