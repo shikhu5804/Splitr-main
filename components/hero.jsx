@@ -1,429 +1,221 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { FEATURES, statsData } from "@/lib/landing";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const HeroSection = () => {
-  const imageRef = useRef(null);
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
 
-  useEffect(() => {
-    const imageElement = imageRef.current;
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.9]);
 
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const scrollThreshold = 100;
-
-      if (scrollPosition > scrollThreshold) {
-        imageElement.classList.add("scrolled");
-      } else {
-        imageElement.classList.remove("scrolled");
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
   };
 
   const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
-  };
-
-  const badgeVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
-  };
-
-  const titleVariants = {
-    hidden: { y: 50, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 1,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
-  };
-
-  const subtitleVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        delay: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
-  };
-
-  const buttonVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: (i) => ({
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        delay: 0.5 + (i * 0.1),
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }),
-    hover: {
-      scale: 1.05,
-      y: -2,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    },
-    tap: {
-      scale: 0.95,
-      transition: {
-        duration: 0.1
-      }
-    }
-  };
-
-  const imageVariants = {
-    hidden: { scale: 0.9, opacity: 0, y: 50 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 1.2,
-        delay: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    },
-    hover: {
-      scale: 1.02,
-      transition: {
-        duration: 0.4,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
-  };
-
-  const statsVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const statItemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    },
-    hover: {
-      y: -5,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
-  };
-
-  const featuresVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const featureCardVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    },
-    hover: {
-      y: -8,
-      scale: 1.02,
-      transition: {
-        duration: 0.3,
-        ease: [0.25, 0.46, 0.45, 0.94]
-      }
-    }
+    hidden: { y: 40, opacity: 0, scale: 0.95 },
+    visible: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
   };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Hero Text Section with texture */}
-      <div
-        className="relative pt-10 bg-gradient-to-br from-blue-50 via-white to-blue-100/50 dark:from-blue-950 dark:via-background dark:to-blue-900/40"
-        style={{
-          backgroundImage: `
-            radial-gradient(circle at 25px 25px, rgba(59, 130, 246, 0.15) 3px, transparent 3px),
-            radial-gradient(circle at 75px 75px, rgba(147, 197, 253, 0.12) 2px, transparent 2px),
-            linear-gradient(45deg, rgba(59, 130, 246, 0.08) 25%, transparent 25%),
-            linear-gradient(-45deg, rgba(147, 197, 253, 0.06) 25%, transparent 25%),
-            repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(59, 130, 246, 0.03) 40px, rgba(59, 130, 246, 0.03) 42px)
-          `,
-          backgroundSize: '50px 50px, 100px 100px, 20px 20px, 20px 20px',
-          backgroundPosition: '0 0, 0 0, 0 0, 10px 10px'
-        }}
-      >
-        <section className="pb-6 space-y-10 md:space-y-15 px-5 relative z-10">
-          <div className="container mx-auto px-6 md:px-6 text-center space-y-12">
-            <motion.div variants={badgeVariants}>
-              <Badge variant="outline" className="bg-blue-100 dark:bg-blue-900/20 text-[14px] text-blue-800 dark:text-blue-300 mb-[-0.5px] border">
-                Split expenses. Simplify life.
-              </Badge>
-            </motion.div>
-
-            <motion.h1
-              variants={titleVariants}
-              className="gradient-title mx-auto max-w-[1200px] text-5xl font-bold md:text-8xl dark:text-blue-100"
-            >
-              The Smartest Way Of <br /> Splitting Bills With Friends
-            </motion.h1>
-
-            <motion.p
-              variants={subtitleVariants}
-              className="mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl/relaxed text-xl mt-5 mb-8 font-medium"
-            >
-              Track shared expenses, split bills effortlessly, and settle up
-              quickly. Never worry about who owes who again.
-            </motion.p>
-
-            <motion.div
-              className="flex flex-col items-center gap-10 sm:flex-row justify-center mt-16"
-              variants={itemVariants}
-            >
-              <motion.div
-                custom={0}
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  className="px-12 py-4 text-[18px] font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300"
-                >
-                  <Link href="/dashboard" className="flex items-center gap-2">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </motion.div>
-              <motion.div
-                custom={1}
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="px-10 py-4 text-[18px] font-semibold border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all duration-300"
-                >
-                  <Link href="#how-it-work">See How It Works</Link>
-                </Button>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
+    <div ref={containerRef} className="relative overflow-hidden w-full">
+      {/* Cinematic Animated Background Mesh */}
+      <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
+        <div className="absolute -top-[20%] left-[10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 dark:bg-blue-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-[pulse_10s_ease-in-out_infinite]" />
+        <div className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-500/10 dark:bg-indigo-600/10 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-[pulse_12s_ease-in-out_infinite_2s]" />
       </div>
 
-      {/* Stats Section */}
-      <motion.section
-        className="py-16 bg-blue-50 dark:bg-blue-950/20"
-        variants={statsVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+      {/* Main Hero Header */}
+      <motion.section 
+        className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 z-10 flex flex-col items-center justify-center min-h-[90vh]"
+        style={{ opacity, scale }}
       >
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {statsData.map(({ id, value, label }) => (
-              <motion.div
-                key={id}
-                className="text-center group"
-                variants={statItemVariants}
-                whileHover="hover"
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="container mx-auto max-w-6xl text-center space-y-8 flex flex-col items-center"
+        >
+          <motion.div variants={itemVariants}>
+            <Badge variant="outline" className="px-5 py-2 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur-md border border-blue-200/50 dark:border-white/20 text-blue-800 dark:text-blue-100 shadow-sm flex items-center gap-2 transition-all hover:scale-105">
+              <Sparkles className="w-4 h-4 text-blue-500 dark:text-blue-300" />
+              <span className="text-sm font-semibold tracking-wide">Split Expenses. Simplify Life.</span>
+            </Badge>
+          </motion.div>
+
+          <motion.h1 
+            variants={itemVariants}
+            className="text-6xl md:text-[5.5rem] font-black tracking-tighter leading-[1.05] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-blue-900 to-blue-600 dark:from-white dark:via-blue-100 dark:to-blue-400 max-w-5xl"
+          >
+            The smartest way to <br className="hidden md:block"/> split bills with friends
+          </motion.h1>
+
+          <motion.p 
+            variants={itemVariants}
+            className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed font-medium mt-6 mb-8"
+          >
+            Track shared expenses, organize group trips, and settle up effortlessly. Never worry about who owes who again.
+          </motion.p>
+
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-center gap-4 pt-4"
+          >
+            <Button asChild size="lg" className="h-14 px-8 text-lg font-semibold rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-[0_10px_40px_-10px_rgba(59,130,246,0.6)] hover:shadow-[0_20px_50px_-10px_rgba(59,130,246,0.8)] transition-all duration-300 hover:-translate-y-1 border-0">
+              <Link href="/dashboard">
+                Get Started Free
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg font-semibold rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md hover:bg-white dark:hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 border border-slate-200 dark:border-white/10 dark:text-white border-2">
+              <Link href="#how-it-work">
+                See How It Works
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
+
+        {/* Floating UI Elements (Parallax) */}
+        <motion.div className="absolute top-[25%] left-[5%] hidden lg:block" style={{ y: y1 }}>
+          <div className="p-4 rounded-3xl bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-2xl border border-white/40 dark:border-white/10 flex items-center gap-4 transform -rotate-12 transition-transform hover:rotate-0 hover:scale-110 duration-500 cursor-pointer">
+            <div className="w-14 h-14 rounded-full bg-green-500/20 dark:bg-green-500/30 flex items-center justify-center">
+              <span className="text-green-600 dark:text-green-400 text-2xl font-bold">₹</span>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">You are owed</p>
+              <p className="font-bold text-xl text-foreground">₹2,450</p>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div className="absolute bottom-[20%] right-[5%] hidden lg:block" style={{ y: y2 }}>
+          <div className="p-4 rounded-3xl bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-2xl border border-white/40 dark:border-white/10 flex items-center gap-4 transform rotate-12 transition-transform hover:rotate-0 hover:scale-110 duration-500 cursor-pointer">
+            <div className="flex -space-x-3">
+               <div className="w-12 h-12 rounded-full bg-blue-500 border-2 border-background shadow-sm" />
+               <div className="w-12 h-12 rounded-full bg-indigo-500 border-2 border-background shadow-sm" />
+            </div>
+            <div className="pl-2">
+              <p className="text-sm font-semibold text-foreground">Dinner Party</p>
+              <p className="text-sm font-bold text-blue-600 dark:text-blue-400">Settled up!</p>
+            </div>
+          </div>
+        </motion.div>
+      </motion.section>
+
+      {/* Cinematic Image Reveal */}
+      <div className="relative z-20 container mx-auto px-4 -mt-10 mb-32 perspective-1000 max-w-7xl">
+        <motion.div
+           initial={{ opacity: 0, rotateX: 20, y: 150, scale: 0.9 }}
+           whileInView={{ opacity: 1, rotateX: 0, y: 0, scale: 1 }}
+           viewport={{ once: true, margin: "-100px" }}
+           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+           className="relative rounded-[2rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] ring-1 ring-slate-200/50 dark:ring-white/10 bg-black group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10 mix-blend-overlay" />
+          <Image
+            src="/hero.jpeg"
+            width={1600}
+            height={900}
+            alt="Splitr App Interface"
+            className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)]"
+            priority
+          />
+        </motion.div>
+      </div>
+
+      {/* Minimalist Stats */}
+      <section className="py-24 relative z-10 border-y border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/20 backdrop-blur-lg">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+            {statsData.map((stat, i) => (
+              <motion.div 
+                key={stat.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center text-center space-y-3"
               >
-                <div className="bg-white dark:bg-blue-900/30 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-blue-800 hover:shadow-md transition-all duration-300 group-hover:scale-105">
-                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">{value}</div>
-                  <div className="text-gray-600 dark:text-gray-300 font-medium">{label}</div>
+                <h3 className="text-5xl md:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                  {stat.value}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 font-semibold uppercase tracking-[0.2em] text-xs">
+                  {stat.label}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Premium Features Grid */}
+      <section id="features" className="py-32 relative z-10 bg-background overflow-hidden">
+        {/* Decorative background for features */}
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+        
+        <div className="container mx-auto px-4 max-w-7xl relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center max-w-3xl mx-auto mb-24"
+          >
+            <Badge variant="outline" className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300">
+              Powerful Features
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-foreground leading-tight">
+              Everything you need exactly <br className="hidden md:block"/> where you need it
+            </h2>
+            <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed">
+              Powerful tools under the hood, wrapped in a beautiful, intuitive interface that anyone can master in seconds.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {FEATURES.map((feature, i) => (
+              <motion.div
+                key={feature.id}
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="group relative p-8 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-200/60 dark:border-white/10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden backdrop-blur-sm"
+              >
+                <div className={`absolute -right-10 -top-10 w-40 h-40 rounded-full opacity-20 dark:opacity-10 blur-2xl ${feature.bg} transition-transform group-hover:scale-150 duration-700`} />
+                
+                <div className="relative z-10">
+                  <div className={`w-16 h-16 rounded-2xl ${feature.bg} flex items-center justify-center mb-8 shadow-inner`}>
+                    <feature.Icon className={`w-8 h-8 ${feature.color}`} />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-foreground tracking-tight">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                    {feature.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
-      </motion.section>
-
-      <motion.div
-        className="text-center mb-12"
-        variants={itemVariants}
-      >
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-blue-200 mb-4">
-          Trusted by Thousands
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-          Join our growing community of users who trust Splitr for their expense management
-        </p>
-      </motion.div>
-
-      {/* Hero Image */}
-      <motion.div
-        className="hero-image-wrapper container mx-auto max-w-[1120px] overflow-hidden"
-        variants={imageVariants}
-        whileHover="hover"
-      >
-        <div ref={imageRef} className="hero-image">
-          <Image
-            src="/hero.jpeg"
-            width={1280}
-            height={720}
-            alt="Banner"
-            className="lg:h-160 lg:w-340 mx-auto mb-6 "
-            priority
-          />
-        </div>
-      </motion.div>
-
-      {/* Features Section */}
-      <motion.section
-        id="features"
-        className="bg-background dark:bg-blue-950/20 py-20"
-        variants={featuresVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          {/* Section Badge */}
-          <motion.div variants={badgeVariants}>
-            <Badge
-              variant="outline"
-              className="bg-blue-100 dark:bg-blue-900/20 text-[14px] text-blue-800 dark:text-blue-300 mb-[-0.5px] border"
-            >
-              Features
-            </Badge>
-          </motion.div>
-
-          {/* Title */}
-          <motion.h1
-            variants={titleVariants}
-            className="mt-2 text-4xl font-semibold md:text-4xl text-foreground dark:text-blue-100"
-          >
-            Everything you need to Split Expenses
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            variants={subtitleVariants}
-            className="mx-auto mt-3 max-w-[700px] text-muted-foreground dark:text-gray-300 md:text-xl/relaxed"
-          >
-            Our platform provides all the tools you need to handle <br />
-            shared expenses with ease.
-          </motion.p>
-
-          {/* Features Grid */}
-          <motion.div
-            className="mx-auto mt-12 grid max-w-[1120px] gap-8 md:grid-cols-2 lg:grid-cols-3"
-            variants={itemVariants}
-          >
-            {FEATURES.map(({ id, title, Icon, bg, color, description }, index) => (
-              <motion.div
-                key={id}
-                variants={featureCardVariants}
-                whileHover="hover"
-                custom={index}
-              >
-                <Card className="
-                  flex flex-col items-center space-y-4 p-6 
-                  bg-card dark:bg-blue-900/40 rounded-xl 
-                  shadow-md hover:shadow-xl 
-                  transform transition-all duration-300 
-                  cursor-pointer text-center
-                ">
-                  {/* Icon Wrapper */}
-                  <motion.div
-                    className={`rounded-full p-4 transition-all duration-300 transform hover:rotate-6 ${bg}`}
-                    whileHover={{ rotate: 6, scale: 1.1 }}
-                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  >
-                    <Icon
-                      className={`h-8 w-8 ${color} transition-colors duration-300`}
-                    />
-                  </motion.div>
-
-                  {/* Feature Title */}
-                  <h3 className="text-[22px] font-bold transition-colors duration-300 hover:text-blue-600 dark:hover:text-blue-400 text-foreground dark:text-blue-100">
-                    {title}
-                  </h3>
-
-                  {/* Feature Description */}
-                  <p className="text-muted-foreground dark:text-gray-300">{description}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.section>
-    </motion.div>
+      </section>
+    </div>
   );
 };
 
