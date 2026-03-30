@@ -75,19 +75,19 @@ export const getExpensesBetweenUsers = query({
     const me = await ctx.runQuery(internal.users.getCurrentUser);
     if (me._id === userId) throw new Error("Cannot query yourself");
 
-    /* ───── 1. One-on-one expenses where either user is the payer ───── */
-    // Use the compound index (`paidByUserId`,`groupId`) with groupId = undefined
+    /* ───── 1. All expenses where either user is the payer ───── */
+    // Use the compound index (`paidByUserId`,`groupId`) with groupId omitted
     const myPaid = await ctx.db
       .query("expenses")
       .withIndex("by_user_and_group", (q) =>
-        q.eq("paidByUserId", me._id).eq("groupId", undefined)
+        q.eq("paidByUserId", me._id)
       )
       .collect();
 
     const theirPaid = await ctx.db
       .query("expenses")
       .withIndex("by_user_and_group", (q) =>
-        q.eq("paidByUserId", userId).eq("groupId", undefined)
+        q.eq("paidByUserId", userId)
       )
       .collect();
 
@@ -108,21 +108,18 @@ export const getExpensesBetweenUsers = query({
 
     expenses.sort((a, b) => b.date - a.date);
 
-    /* ───── 3. Settlements between the two of us (groupId = undefined) ─ */
+    /* ───── 3. All settlements between the two of us ─ */
     const settlements = await ctx.db
       .query("settlements")
       .filter((q) =>
-        q.and(
-          q.eq(q.field("groupId"), undefined),
-          q.or(
-            q.and(
-              q.eq(q.field("paidByUserId"), me._id),
-              q.eq(q.field("receivedByUserId"), userId)
-            ),
-            q.and(
-              q.eq(q.field("paidByUserId"), userId),
-              q.eq(q.field("receivedByUserId"), me._id)
-            )
+        q.or(
+          q.and(
+            q.eq(q.field("paidByUserId"), me._id),
+            q.eq(q.field("receivedByUserId"), userId)
+          ),
+          q.and(
+            q.eq(q.field("paidByUserId"), userId),
+            q.eq(q.field("receivedByUserId"), me._id)
           )
         )
       )
