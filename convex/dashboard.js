@@ -24,51 +24,45 @@ if (!user) {
     );
 
     /* tallies */
-    let youOwe = 0;
-    let youAreOwed = 0;
     const balanceByUser = {};
 
     for (const e of expenses) {
-      const isPayer = e.paidByUserId === user._id;
-      const mySplit = e.splits.find((s) => s.userId === user._id);
-
-      if (isPayer) {
+      if (e.paidByUserId === user._id) {
         for (const s of e.splits) {
           if (s.userId === user._id || s.paid) continue;
-          youAreOwed += s.amount;
           (balanceByUser[s.userId] ??= { owed: 0, owing: 0 }).owed += s.amount;
         }
-      } else if (mySplit && !mySplit.paid) {
-        youOwe += mySplit.amount;
-        (balanceByUser[e.paidByUserId] ??= { owed: 0, owing: 0 }).owing +=
-          mySplit.amount;
+      } else {
+        const mySplit = e.splits.find((s) => s.userId === user._id);
+        if (mySplit && !mySplit.paid) {
+          (balanceByUser[e.paidByUserId] ??= { owed: 0, owing: 0 }).owing += mySplit.amount;
+        }
       }
     }
 
     /* ───────────── All settlements ───────────── */
-    const settlements = (await ctx.db.query("settlements").collect()).filter(
-      (s) =>
-        s.paidByUserId === user._id || s.receivedByUserId === user._id
-    );
-
     for (const s of settlements) {
       if (s.paidByUserId === user._id) {
-        youOwe -= s.amount;
-        (balanceByUser[s.receivedByUserId] ??= { owed: 0, owing: 0 }).owing -=
-          s.amount;
-      } else {
-        youAreOwed -= s.amount;
-        (balanceByUser[s.paidByUserId] ??= { owed: 0, owing: 0 }).owed -=
-          s.amount;
+        // User paid someone
+        (balanceByUser[s.receivedByUserId] ??= { owed: 0, owing: 0 }).owing -= s.amount;
+      } else if (s.receivedByUserId === user._id) {
+        // Someone paid user
+        (balanceByUser[s.paidByUserId] ??= { owed: 0, owing: 0 }).owed -= s.amount;
       }
     }
 
     /* build lists for UI */
     const youOweList = [];
     const youAreOwedByList = [];
+    let calcYouOwe = 0;
+    let calcYouAreOwed = 0;
+
     for (const [uid, { owed, owing }] of Object.entries(balanceByUser)) {
+      if (uid === user._id) continue; // Prevent self-owing
+
       const net = owed - owing;
       if (net === 0) continue;
+      
       const counterpart = await ctx.db.get(uid);
       const base = {
         userId: uid,
@@ -76,16 +70,23 @@ if (!user) {
         imageUrl: counterpart?.imageUrl,
         amount: Math.abs(net),
       };
-      net > 0 ? youAreOwedByList.push(base) : youOweList.push(base);
+
+      if (net > 0) {
+        calcYouAreOwed += net;
+        youAreOwedByList.push(base);
+      } else {
+        calcYouOwe += Math.abs(net);
+        youOweList.push(base);
+      }
     }
 
     youOweList.sort((a, b) => b.amount - a.amount);
     youAreOwedByList.sort((a, b) => b.amount - a.amount);
 
     return {
-      youOwe,
-      youAreOwed,
-      totalBalance: youAreOwed - youOwe,
+      youOwe: calcYouOwe,
+      youAreOwed: calcYouAreOwed,
+      totalBalance: calcYouAreOwed - calcYouOwe,
       oweDetails: { youOwe: youOweList, youAreOwedBy: youAreOwedByList },
     };
   },
