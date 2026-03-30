@@ -18,21 +18,7 @@ export function SplitSelector({
   const [splits, setSplits] = useState([]);
   const [totalPercentage, setTotalPercentage] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [includedIds, setIncludedIds] = useState([]);
-
-  // Initialize included IDs when participants change
-  useEffect(() => {
-    setIncludedIds((prev) => {
-      const participantIds = participants.map((p) => p.id);
-      // Keep previously included IDs if they still exist
-      const newIncluded = prev.filter((id) => participantIds.includes(id));
-      // If none are included (e.g., initial load), select all
-      if (newIncluded.length === 0 && participantIds.length > 0) {
-        return participantIds;
-      }
-      return newIncluded;
-    });
-  }, [participants]);
+  const [uncheckedIds, setUncheckedIds] = useState([]);
 
   // Calculate splits when inputs change
   useEffect(() => {
@@ -47,13 +33,13 @@ export function SplitSelector({
     if (type === "equal") {
       // Equal splits based on included users
       const activeParticipants = participants.filter((p) =>
-        includedIds.includes(p.id)
+        !uncheckedIds.includes(p.id)
       );
       const shareAmount =
         activeParticipants.length > 0 ? safeAmount / activeParticipants.length : 0;
 
       newSplits = participants.map((participant) => {
-        const isIncluded = includedIds.includes(participant.id);
+        const isIncluded = !uncheckedIds.includes(participant.id);
         return {
           userId: participant.id,
           name: participant.name,
@@ -112,11 +98,11 @@ export function SplitSelector({
     if (onSplitsChange) {
       onSplitsChange(newSplits);
     }
-  }, [type, amount, participants, paidByUserId, includedIds, onSplitsChange]);
+  }, [type, amount, participants, paidByUserId, uncheckedIds, onSplitsChange]);
 
   const toggleIncluded = (userId) => {
     if (type !== "equal") return;
-    setIncludedIds((prev) =>
+    setUncheckedIds((prev) =>
       prev.includes(userId)
         ? prev.filter((id) => id !== userId)
         : [...prev, userId]
@@ -203,7 +189,7 @@ export function SplitSelector({
     <div className="space-y-4 mt-4">
       {splits.map((split) => {
         const isIncluded =
-          type === "equal" ? includedIds.includes(split.userId) : true;
+          type === "equal" ? !uncheckedIds.includes(split.userId) : true;
 
         return (
           <div
