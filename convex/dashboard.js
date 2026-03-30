@@ -41,6 +41,10 @@ if (!user) {
     }
 
     /* ───────────── All settlements ───────────── */
+    const settlements = (await ctx.db.query("settlements").collect()).filter(
+      (s) =>
+        s.paidByUserId === user._id || s.receivedByUserId === user._id
+    );
     for (const s of settlements) {
       if (s.paidByUserId === user._id) {
         // User paid someone
