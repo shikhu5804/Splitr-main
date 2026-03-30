@@ -36,9 +36,11 @@ export function SplitSelector({
 
   // Calculate splits when inputs change
   useEffect(() => {
-    if (!amount || amount <= 0 || participants.length === 0) {
+    if (participants.length === 0) {
       return;
     }
+
+    const safeAmount = amount && amount > 0 ? amount : 0;
 
     let newSplits = [];
 
@@ -48,7 +50,7 @@ export function SplitSelector({
         includedIds.includes(p.id)
       );
       const shareAmount =
-        activeParticipants.length > 0 ? amount / activeParticipants.length : 0;
+        activeParticipants.length > 0 ? safeAmount / activeParticipants.length : 0;
 
       newSplits = participants.map((participant) => {
         const isIncluded = includedIds.includes(participant.id);
@@ -73,20 +75,20 @@ export function SplitSelector({
         name: participant.name,
         email: participant.email,
         imageUrl: participant.imageUrl,
-        amount: (amount * evenPercentage) / 100,
+        amount: (safeAmount * evenPercentage) / 100,
         percentage: evenPercentage,
         paid: participant.id === paidByUserId,
       }));
     } else if (type === "exact") {
       // Initialize exact splits evenly
-      const evenAmount = amount / participants.length;
+      const evenAmount = safeAmount / participants.length;
       newSplits = participants.map((participant) => ({
         userId: participant.id,
         name: participant.name,
         email: participant.email,
         imageUrl: participant.imageUrl,
         amount: evenAmount,
-        percentage: (evenAmount / amount) * 100,
+        percentage: safeAmount > 0 ? (evenAmount / safeAmount) * 100 : 0,
         paid: participant.id === paidByUserId,
       }));
     }
@@ -129,7 +131,7 @@ export function SplitSelector({
         return {
           ...split,
           percentage: newPercentage,
-          amount: (amount * newPercentage) / 100,
+          amount: ((amount || 0) * newPercentage) / 100,
         };
       }
       return split;
@@ -166,7 +168,7 @@ export function SplitSelector({
         return {
           ...split,
           amount: parsedAmount,
-          percentage: amount > 0 ? (parsedAmount / amount) * 100 : 0,
+          percentage: (amount || 0) > 0 ? (parsedAmount / amount) * 100 : 0,
         };
       }
       return split;

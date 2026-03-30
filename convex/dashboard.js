@@ -16,12 +16,11 @@ if (!user) {
   };
 }
 
-    /* ───────────── 1‑to‑1 expenses (no groupId) ───────────── */
+    /* ───────────── All expenses ───────────── */
     const expenses = (await ctx.db.query("expenses").collect()).filter(
       (e) =>
-        !e.groupId && // 1‑to‑1 only
-        (e.paidByUserId === user._id ||
-          e.splits.some((s) => s.userId === user._id))
+        e.paidByUserId === user._id ||
+        e.splits.some((s) => s.userId === user._id)
     );
 
     /* tallies */
@@ -46,11 +45,10 @@ if (!user) {
       }
     }
 
-    /* ───────────── 1‑to‑1 settlements (no groupId) ───────────── */
+    /* ───────────── All settlements ───────────── */
     const settlements = (await ctx.db.query("settlements").collect()).filter(
       (s) =>
-        !s.groupId &&
-        (s.paidByUserId === user._id || s.receivedByUserId === user._id)
+        s.paidByUserId === user._id || s.receivedByUserId === user._id
     );
 
     for (const s of settlements) {
